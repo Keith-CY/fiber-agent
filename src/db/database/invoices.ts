@@ -43,7 +43,7 @@ export class Invoices {
       .leftJoin(schema.orders, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
       .where(inArray(schema.invoices.status, status_list))
       .orderBy(desc(schema.invoices.timestamp))
-      .offset(page_size * (page_no - 1))
+      .offset((page_no - 1) * page_size)
       .limit(page_size)
       .then((res) =>
         res.map(({ invoices, orders }) => ({

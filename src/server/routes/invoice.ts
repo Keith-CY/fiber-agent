@@ -12,7 +12,7 @@ const invoiceRoute = new Hono()
  **/
 invoiceRoute.get('/', async (c) => {
   const pageNo = c.req.query('page_no')
-  const pageSize = c.req.queries('page_size')
+  const pageSize = c.req.query('page_size')
   const _sl = c.req.query('status_list')
   const statusList = _sl ? (_sl.split(',') as Array<InvoiceStatus>) : undefined
 
@@ -20,6 +20,7 @@ invoiceRoute.get('/', async (c) => {
     pageNo: +(pageNo || 1),
     pageSize: +(pageSize || 20),
   })
+
   return c.json({ code: ServerResponseCode.Success, result })
 })
 

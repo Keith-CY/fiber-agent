@@ -1,8 +1,8 @@
 import type { Fiber } from '../../core'
 import { drizzle } from 'drizzle-orm/pglite'
-import { desc, eq, count } from 'drizzle-orm'
+import { desc, eq, count, inArray, and } from 'drizzle-orm'
 import * as schema from '../schema'
-import { EventTopic, EventType } from '../../common'
+import { EventTopic, EventType, InvoiceStatus } from '../../common'
 
 export class Merchants {
   private _db: ReturnType<typeof drizzle>
@@ -41,5 +41,43 @@ export class Merchants {
       .from(schema.merchants)
       .limit(1)
       .then((res) => res[0]?.count ?? 0)
+  }
+
+  public get_invocies = async (
+    id: string,
+    status_list: Array<InvoiceStatus> = [InvoiceStatus.Paid, InvoiceStatus.Open],
+    { page_no, page_size }: Record<'page_no' | 'page_size', number> = { page_no: 1, page_size: 20 },
+  ) => {
+    const total = await this._db
+      .select({ total: count() })
+      .from(schema.merchants)
+      .innerJoin(schema.orders, eq(schema.merchants.id, schema.orders.merchant_id))
+      .innerJoin(schema.invoices, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
+      .where(and(eq(schema.merchants.id, id), inArray(schema.invoices.status, status_list)))
+      .then((res) => res[0].total)
+
+    const list = await this._db
+      .select({
+        invoices: schema.invoices,
+        orders: schema.orders,
+      })
+      .from(schema.merchants)
+      .innerJoin(schema.orders, eq(schema.merchants.id, schema.orders.merchant_id))
+      .innerJoin(schema.invoices, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
+      .where(and(eq(schema.merchants.id, id), inArray(schema.invoices.status, status_list)))
+      .orderBy(desc(schema.invoices.timestamp))
+      .offset((page_no - 1) * page_size)
+      .limit(page_size)
+      .then((res) =>
+        res.map(({ invoices, orders }) => ({
+          ...invoices,
+          order: orders,
+        })),
+      )
+
+    return {
+      list,
+      page: { total, page_no, page_size },
+    }
   }
 }
