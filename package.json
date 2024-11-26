@@ -10,7 +10,6 @@
     "db:mr": "bun run ./scripts/migrate.ts",
     "db:studio": "npx drizzle-kit studio",
     "dev:server": "bun run src/server/index.ts",
-    "dev:ui": "cd src/webui && npm run dev:ui",
     "format": "prettier --check"
   },
   "keywords": [],
@@ -20,6 +19,7 @@
     "@electric-sql/pglite": "^0.2.13",
     "@hono/zod-validator": "^0.4.1",
     "@nervosnetwork/ckb-sdk-utils": "^0.109.4",
+    "bignumber.js": "^9.1.2",
     "commander": "^12.1.0",
     "drizzle-orm": "^0.36.3",
     "hono": "^4.6.10",

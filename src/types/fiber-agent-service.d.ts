@@ -98,6 +98,8 @@ export namespace FiberAgentService {
                 code_hash: string
                 hash_type: 'data' | 'type' | 'data1' | 'data2'
                 args: string
+                decimal: string | null
+                is_allowed: boolean
               } | null
             }
           >
@@ -140,14 +142,22 @@ export namespace FiberAgentService {
       export interface Response extends ResponseBase {
         result: {
           channel: Awaited<ReturnType<typeof fiberAgent.channel.stats>>
-          udt_info: Awaited<ReturnType<typeof fiberAgent.udtInfo.getMany>>
+          udt_info: Awaited<ReturnType<typeof fiberAgent.udtInfo.list>>
         }
       }
     }
 
     export namespace UdtInfo {
-      export interface Response extends ResponseBase {
-        result: Awaited<ReturnType<typeof fiberAgent.udtInfo.getMany>>
+      export namespace List {
+        export interface Response extends ResponseBase {
+          result: Awaited<ReturnType<typeof fiberAgent.udtInfo.list>>
+        }
+      }
+
+      export namespace SetDecimal {
+        export interface Response extends ResponseBase {
+          result: Awaited<ReturnType<typeof fiberAgent.udtInfo.setDecimal>>
+        }
       }
     }
   }

@@ -1,6 +1,6 @@
 import type { Fiber } from '../../core'
 import { drizzle } from 'drizzle-orm/pglite'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, getTableColumns } from 'drizzle-orm'
 import * as schema from '../schema'
 
 export class Orders {
@@ -20,15 +20,12 @@ export class Orders {
 
   public get_many = async () => {
     return this._db
-      .select()
+      .select({
+        ...getTableColumns(schema.orders),
+        invoice: schema.invoices,
+      })
       .from(schema.orders)
       .leftJoin(schema.invoices, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
       .orderBy(desc(schema.orders.created_at))
-      .then((list) => {
-        return list.map((item) => ({
-          ...item.orders,
-          invoice: item.invoices,
-        }))
-      })
   }
 }

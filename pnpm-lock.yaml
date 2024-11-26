@@ -17,6 +17,9 @@ importers:
       '@nervosnetwork/ckb-sdk-utils':
         specifier: ^0.109.4
         version: 0.109.4
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.1.2
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -346,6 +349,9 @@ packages:
 
   bech32@2.0.0:
     resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==}
+
+  bignumber.js@9.1.2:
+    resolution: {integrity: sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==}
 
   bn.js@4.12.1:
     resolution: {integrity: sha512-k8TVBiPkPJT9uHLdOKfFpqcfprwBFOAAXXozRubr7R7PfIuKvQlzcI4M0pALeqXN09vdaMbUdUj+pass+uULAg==}
@@ -722,6 +728,8 @@ snapshots:
       undici-types: 6.19.8
 
   bech32@2.0.0: {}
+
+  bignumber.js@9.1.2: {}
 
   bn.js@4.12.1: {}
 

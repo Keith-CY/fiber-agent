@@ -1,6 +1,6 @@
 import type { Fiber } from '../../core'
 import { drizzle } from 'drizzle-orm/pglite'
-import { desc, eq, inArray, count } from 'drizzle-orm'
+import { desc, eq, inArray, count, getTableColumns } from 'drizzle-orm'
 import * as schema from '../schema'
 import { EventTopic, EventType, InvoiceStatus } from '../../common'
 
@@ -13,18 +13,15 @@ export class Invoices {
 
   public get_one = async (payment_hash: string) => {
     return this._db
-      .select()
+      .select({
+        ...getTableColumns(schema.invoices),
+        order: schema.orders,
+      })
       .from(schema.invoices)
       .leftJoin(schema.orders, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
       .where(eq(schema.invoices.payment_hash, payment_hash))
       .limit(1)
-      .then((res) => {
-        const item = res[0]
-        return {
-          ...item.invoices,
-          order: item.orders,
-        }
-      })
+      .then((res) => res[0])
   }
 
   public get_many = async (
@@ -38,19 +35,16 @@ export class Invoices {
       .then((res) => res[0].total)
 
     const list = await this._db
-      .select()
+      .select({
+        ...getTableColumns(schema.invoices),
+        order: schema.orders,
+      })
       .from(schema.invoices)
       .leftJoin(schema.orders, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
       .where(inArray(schema.invoices.status, status_list))
       .orderBy(desc(schema.invoices.timestamp))
       .offset((page_no - 1) * page_size)
       .limit(page_size)
-      .then((res) =>
-        res.map(({ invoices, orders }) => ({
-          ...invoices,
-          order: orders,
-        })),
-      )
 
     return {
       list,
@@ -60,17 +54,14 @@ export class Invoices {
 
   public get_all_open = async () => {
     return this._db
-      .select()
+      .select({
+        ...getTableColumns(schema.invoices),
+        order: schema.orders,
+      })
       .from(schema.invoices)
       .leftJoin(schema.orders, eq(schema.invoices.payment_hash, schema.orders.payment_hash))
       .where(inArray(schema.invoices.status, [InvoiceStatus.Open]))
       .orderBy(desc(schema.invoices.timestamp))
-      .then((res) =>
-        res.map(({ invoices, orders }) => ({
-          ...invoices,
-          order: orders,
-        })),
-      )
   }
 
   public get_counts = async () => {

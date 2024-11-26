@@ -10,6 +10,7 @@ export const EXPLORER_URL =
   CHAIN_TYPE === 'mainnet' ? 'https://explorer.nervos.org' : 'https://testnet.explorer.nervos.org'
 
 export const DEFAULT_FEE_RATE = 1000
+export const CKB_DECIMAL = 8
 
 export enum ServerResponseCode {
   Success = 0,

@@ -1,25 +1,21 @@
 import { Hono } from 'hono'
 import { fiberAgent } from '../../core'
 import { ChannelStateName, ServerResponseCode } from '../../common'
+import { z } from 'zod'
+import { zValidator as validator } from '@hono/zod-validator'
 
 const infoRoute = new Hono()
 
 infoRoute.get('/', async (c) => {
   const stats = await fiberAgent.channel.stats()
-  const udtInfos = await fiberAgent.udtInfo.getMany()
+  const udtInfos = await fiberAgent.udtInfo.list()
   const localNode = await fiberAgent.peer.getInfo()
 
   const local_balance: Record<
     string,
     {
       balance: string
-      udt_info: {
-        name: string | null
-        script_hash: string
-        code_hash: string
-        hash_type: 'data' | 'type' | 'data1' | 'data2'
-        args: string
-      } | null
+      udt_info: (typeof udtInfos)[0] | null
     }
   > = {}
 
@@ -86,7 +82,7 @@ infoRoute.get('/merchants', async (c) => {
 
 infoRoute.get('/finance', async (c) => {
   const channel = await fiberAgent.channel.stats()
-  const udtInfos = await fiberAgent.udtInfo.getMany()
+  const udtInfos = await fiberAgent.udtInfo.list()
   return c.json({
     code: ServerResponseCode.Success,
     result: { channel, udt_info: udtInfos },
@@ -94,10 +90,25 @@ infoRoute.get('/finance', async (c) => {
 })
 
 infoRoute.get('/udt-info', async (c) => {
-  const udtInfos = await fiberAgent.udtInfo.getMany()
+  const udtInfos = await fiberAgent.udtInfo.list()
   return c.json({
     code: ServerResponseCode.Success,
     result: udtInfos,
+  })
+})
+
+const setDecimalSchema = z.object({
+  decimal: z.number(),
+})
+
+infoRoute.put('/udt-info/:script_hash', validator('json', setDecimalSchema), async (c) => {
+  const scriptHash = c.req.param('script_hash')
+  const body = await c.req.json()
+  const { decimal } = body
+  const result = await fiberAgent.udtInfo.setDecimal(scriptHash, decimal)
+  return c.json({
+    code: ServerResponseCode.Success,
+    result,
   })
 })
 

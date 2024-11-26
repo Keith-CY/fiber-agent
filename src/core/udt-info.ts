@@ -7,7 +7,11 @@ export class UdtInfo {
     this._db = db
   }
 
-  public getMany = async () => {
+  public list = async () => {
     return this._db.udtCfgs.get_many()
+  }
+
+  public setDecimal = async (script_hash: string, decimal: number) => {
+    return this._db.udtCfgs.set_decimal(script_hash, decimal)
   }
 }

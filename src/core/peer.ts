@@ -65,7 +65,7 @@ export class Peer {
     }
     for (const cfg of local.udt_cfg_infos) {
       const { script_hash } = await this._db.scripts.upsert(cfg.script)
-      await this._db.udtCfgs.upsert(script_hash, cfg.name)
+      await this._db.udtCfgs.upsert(script_hash, cfg.name, true)
     }
     await this._db.nodes.upsert(local, true)
   }

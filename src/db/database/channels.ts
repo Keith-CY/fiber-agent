@@ -1,6 +1,6 @@
 import type { Fiber } from '../../core'
 import { drizzle } from 'drizzle-orm/pglite'
-import { count, desc, eq, inArray, not, sql, sum } from 'drizzle-orm'
+import { count, desc, eq, getTableColumns, inArray, not, sql, sum } from 'drizzle-orm'
 import * as schema from '../schema'
 import { ChannelStateName, EventTopic, EventType } from '../../common'
 import { Scripts } from './scripts'
@@ -42,8 +42,12 @@ export class Channels {
 
   public get_one = async (channel_id: string) => {
     return this._db
-      .select()
+      .select({
+        ...getTableColumns(schema.channels),
+        udt: schema.udtCfgs,
+      })
       .from(schema.channels)
+      .leftJoin(schema.udtCfgs, eq(schema.udtCfgs.script_hash, schema.channels.funding_udt_type_script_hash))
       .where(eq(schema.channels.channel_id, channel_id))
       .limit(1)
       .then((res) => res[0])
@@ -51,17 +55,14 @@ export class Channels {
 
   public get_many = async () => {
     return this._db
-      .select()
+      .select({
+        ...getTableColumns(schema.channels),
+        udt: schema.udtCfgs,
+      })
       .from(schema.channels)
       .leftJoin(schema.udtCfgs, eq(schema.udtCfgs.script_hash, schema.channels.funding_udt_type_script_hash))
       .where(not(eq(schema.channels.state_name, ChannelStateName.Closed)))
       .orderBy(desc(schema.channels.timestamp))
-      .then((list) =>
-        list.map((item) => ({
-          ...item.channels,
-          udt: item['udt-cfgs'],
-        })),
-      )
   }
 
   public upsert = async (ch: Fiber.Channel) => {

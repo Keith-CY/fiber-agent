@@ -1,6 +1,6 @@
 import type { Fiber } from '../../core'
 import { drizzle } from 'drizzle-orm/pglite'
-import { desc, eq, count, inArray, and } from 'drizzle-orm'
+import { desc, eq, count, inArray, and, getTableColumns } from 'drizzle-orm'
 import * as schema from '../schema'
 import { EventTopic, EventType, InvoiceStatus } from '../../common'
 
@@ -58,7 +58,7 @@ export class Merchants {
 
     const list = await this._db
       .select({
-        invoices: schema.invoices,
+        ...getTableColumns(schema.invoices),
         orders: schema.orders,
       })
       .from(schema.merchants)
@@ -68,12 +68,6 @@ export class Merchants {
       .orderBy(desc(schema.invoices.timestamp))
       .offset((page_no - 1) * page_size)
       .limit(page_size)
-      .then((res) =>
-        res.map(({ invoices, orders }) => ({
-          ...invoices,
-          order: orders,
-        })),
-      )
 
     return {
       list,

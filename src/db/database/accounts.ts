@@ -1,7 +1,7 @@
 import type { Fiber } from '../../core'
 import type { Scripts } from './scripts'
 import { drizzle } from 'drizzle-orm/pglite'
-import { eq } from 'drizzle-orm'
+import { eq, getTableColumns } from 'drizzle-orm'
 import * as schema from '../schema'
 import { AccountRole, EventTopic, EventType } from '../../common'
 import { scriptToHash } from '@nervosnetwork/ckb-sdk-utils'
@@ -16,18 +16,16 @@ export class Accounts {
   }
 
   public get_one = async (role: AccountRole) => {
-    const a = await this._db
-      .select()
+    return this._db
+      .select({
+        ...getTableColumns(schema.accounts),
+        script: schema.scripts,
+      })
       .from(schema.accounts)
       .where(eq(schema.accounts.role, role))
       .leftJoin(schema.scripts, eq(schema.scripts.script_hash, schema.accounts.script_hash))
       .limit(1)
       .then((res) => res[0])
-    if (!a) return null
-    return {
-      ...a.accounts,
-      script: a.scripts,
-    }
   }
 
   public set_one = async (role: AccountRole, script: Fiber.Script) => {
