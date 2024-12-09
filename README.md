@@ -27,10 +27,10 @@ $ git clone https://github.com/Keith-CY/fiber-agent.git
 $ cd fiber-agent
 ```
 
-3. Install the dependencies using pnpm:
+3. Install the dependencies using bun:
 
 ```bash
-$ pnpm install
+$ bun install
 ```
 
 ## Configuration and Usage
